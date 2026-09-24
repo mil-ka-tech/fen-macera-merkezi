@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="20dp" android:background="#08111F">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="🎤 Rusça Dinleme Testi" android:textColor="#FFFFFF"
+        android:textStyle="bold" android:textSize="26sp" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Mikrofon sesi dinler. Konuşma başlayınca kayda girer, yaklaşık 0,9 sn sessizlikte repliği bitirir."
+        android:textColor="#A9BDD7" android:textSize="16sp" />
+    <Button android:id="@+id/startButton" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="22dp"
+        android:text="🎙️ Dinlemeyi Başlat" />
+    <Button android:id="@+id/stopButton" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="8dp"
+        android:enabled="false" android:text="⏹️ Durdur" />
+    <TextView android:id="@+id/statusText" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="18dp"
+        android:padding="12dp" android:background="#13243A" android:text="Hazır."
+        android:textColor="#CFE3FF" android:textSize="16sp" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_marginTop="18dp" android:text="Ses seviyesi" android:textColor="#9FB8D6" />
+    <ProgressBar android:id="@+id/levelBar" style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent" android:layout_height="18dp"
+        android:layout_marginTop="6dp" android:max="100" android:progress="0" />
+    <TextView android:id="@+id/levelText" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_marginTop="4dp"
+        android:text="0%" android:textColor="#9FB8D6" />
+    <TextView android:id="@+id/segmentText" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="22dp"
+        android:padding="16dp" android:background="#07101D"
+        android:text="Henüz replik yakalanmadı." android:textColor="#FFFFFF" android:textSize="18sp" />
+    <Button android:id="@+id/playButton" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="10dp"
+        android:enabled="false" android:text="▶ Son Repliği Dinle" />
+</LinearLayout>
