@@ -3,96 +3,212 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Rusça Canlı Dinleme Testi</title>
+<title>Rusça Canlı Dinleme Testi V2</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#08111f;color:#fff;min-height:100vh}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#08111f;color:#fff;min-height:100vh}
 .wrap{max-width:760px;margin:auto;padding:24px 16px 60px}
 .card{background:#101d30;border:1px solid #263b59;border-radius:22px;padding:22px;box-shadow:0 16px 40px rgba(0,0,0,.28)}
-h1{font-size:28px;margin:0 0 8px}.sub{color:#a9bdd7;line-height:1.5;margin-bottom:22px}
-button{width:100%;border:0;border-radius:16px;padding:18px;font-size:20px;font-weight:700;cursor:pointer}
-#start{background:#4bd6a3;color:#062317}#stop{background:#ff6b6b;color:#2a0808;margin-top:10px}
-.box{margin-top:20px;background:#07101d;border-radius:16px;padding:18px;min-height:140px;border:1px solid #203450}
-.label{font-size:13px;color:#7f9bbd;text-transform:uppercase;letter-spacing:.08em}
-#finalText{font-size:25px;line-height:1.45;margin-top:8px;white-space:pre-wrap}
-#interim{font-size:19px;line-height:1.4;color:#91a9c5;margin-top:10px}
+h1{font-size:28px;margin:0 0 8px}
+.sub{color:#a9bdd7;line-height:1.5;margin-bottom:18px}
+button{width:100%;border:0;border-radius:16px;padding:18px;font-size:19px;font-weight:700;cursor:pointer}
+#start{background:#4bd6a3;color:#062317}
+#stop{background:#ff6b6b;color:#2a0808;margin-top:10px}
 .status{margin-top:16px;padding:12px 14px;border-radius:12px;background:#13243a;color:#cfe3ff}
+.meterWrap{margin-top:18px}
+.meterLabel{display:flex;justify-content:space-between;color:#9fb8d6;font-size:13px;margin-bottom:8px}
+.meter{height:20px;border-radius:999px;background:#07101d;border:1px solid #203450;overflow:hidden}
+#bar{height:100%;width:0%;background:linear-gradient(90deg,#4bd6a3,#ffd166,#ff6b6b);transition:width .06s linear}
+.indicator{display:flex;align-items:center;gap:10px;margin-top:16px}
+.dot{width:16px;height:16px;border-radius:50%;background:#47586f;box-shadow:0 0 0 transparent}
+.dot.on{background:#49e18e;box-shadow:0 0 16px #49e18e}
+.box{margin-top:20px;background:#07101d;border-radius:16px;padding:18px;border:1px solid #203450}
+.label{font-size:13px;color:#7f9bbd;text-transform:uppercase;letter-spacing:.08em}
+#segments{margin-top:10px;display:grid;gap:12px}
+.seg{padding:14px;border-radius:14px;background:#0f1b2d;border:1px solid #223754}
+.segTop{display:flex;justify-content:space-between;gap:10px;color:#b7cbe2;font-size:14px;margin-bottom:8px}
+audio{width:100%;margin-top:8px}
 .small{font-size:13px;color:#8197b2;line-height:1.5;margin-top:16px}
+.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#183253;color:#bfe4ff;font-size:12px}
 </style>
 </head>
 <body>
 <main class="wrap">
 <section class="card">
-<h1>🎤 Rusça Dinleme Testi</h1>
-<div class="sub">Telefonu Rusça konuşan TV'ye veya hoparlöre yaklaştır. Konuşma bittiğinde çıkan Rusça metni kontrol edeceğiz.</div>
+<h1>🎤 Rusça Dinleme Testi V2</h1>
+<div class="sub">Bu sürüm mikrofon seviyesini gösterir, konuşmayı sessizlikten ayırır ve her repliği ayrı ses parçası olarak kaydeder.</div>
+
 <button id="start">🎙️ Dinlemeyi Başlat</button>
 <button id="stop" disabled>⏹️ Durdur</button>
+
 <div class="status" id="status">Hazır.</div>
-<div class="box">
-<div class="label">Kesinleşen Rusça metin</div>
-<div id="finalText">—</div>
-<div id="interim"></div>
+
+<div class="meterWrap">
+  <div class="meterLabel"><span>Ses seviyesi</span><span id="levelText">0%</span></div>
+  <div class="meter"><div id="bar"></div></div>
 </div>
-<div class="small">Bu ilk test yalnızca Rusça sesi yazıya çevirir. Türkçe çeviriyi bir sonraki aşamada ekleyeceğiz. Chrome'un konuşma tanıma özelliğini kullanır; internet gerekebilir.</div>
+
+<div class="indicator">
+  <div id="dot" class="dot"></div>
+  <div id="speechState">Konuşma bekleniyor</div>
+</div>
+
+<div class="box">
+  <div class="label">Yakalanan konuşma parçaları</div>
+  <div id="segments"><div style="color:#7188a5">Henüz kayıt yok.</div></div>
+</div>
+
+<div class="small">
+  V2 şu anda sesi gerçekten kaydedip konuşma bitince ayrı parçaya ayırır. Henüz Whisper bağlanmadı; bu testte önce mikrofon + sessizlik algılamanın film sesinde düzgün çalıştığını doğruluyoruz.
+</div>
 </section>
 </main>
+
 <script>
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-const startBtn=document.getElementById('start'), stopBtn=document.getElementById('stop');
-const statusEl=document.getElementById('status'), finalEl=document.getElementById('finalText'), interimEl=document.getElementById('interim');
-let rec=null, keepGoing=false, finalText='';
+const startBtn=document.getElementById('start');
+const stopBtn=document.getElementById('stop');
+const statusEl=document.getElementById('status');
+const bar=document.getElementById('bar');
+const levelText=document.getElementById('levelText');
+const dot=document.getElementById('dot');
+const speechState=document.getElementById('speechState');
+const segments=document.getElementById('segments');
+
+let stream, audioCtx, analyser, source, rafId;
+let recorder=null, chunks=[];
+let active=false, speaking=false, speechStart=0, silenceStart=0;
+let segmentNo=0;
+let lastLevel=0;
+
+const SILENCE_MS=900;
+const MIN_SPEECH_MS=350;
+const START_THRESHOLD=0.055;
+const STOP_THRESHOLD=0.035;
 
 function setStatus(t){statusEl.textContent=t}
 
-if(!SR){
-  startBtn.disabled=true;
-  setStatus('Bu tarayıcı konuşma tanımayı desteklemiyor. Samsung Internet yerine Chrome ile açmayı dene.');
-}else{
-  rec=new SR();
-  rec.lang='ru-RU';
-  rec.continuous=true;
-  rec.interimResults=true;
-  rec.maxAlternatives=1;
-
-  rec.onstart=()=>setStatus('🎧 Dinliyor… Rusça konuşmayı bekliyorum.');
-  rec.onresult=(e)=>{
-    let interim='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      const t=e.results[i][0].transcript.trim();
-      if(e.results[i].isFinal){
-        finalText += (finalText?'\n':'') + t;
-        finalEl.textContent=finalText || '—';
-        interimEl.textContent='';
-        setStatus('✅ Bir konuşma parçası tamamlandı. Dinlemeye devam ediyorum.');
-      } else {
-        interim += t+' ';
-      }
+function makeRecorder(){
+  const opts = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+    ? {mimeType:'audio/webm;codecs=opus'} : {};
+  recorder=new MediaRecorder(stream,opts);
+  chunks=[];
+  recorder.ondataavailable=e=>{if(e.data && e.data.size>0) chunks.push(e.data)};
+  recorder.onstop=()=>{
+    const dur=Math.max(0,(performance.now()-speechStart)/1000);
+    if(chunks.length && dur>=MIN_SPEECH_MS/1000){
+      const blob=new Blob(chunks,{type:recorder.mimeType || 'audio/webm'});
+      addSegment(blob,dur);
     }
-    interimEl.textContent=interim ? '… '+interim : '';
-  };
-  rec.onerror=(e)=>{
-    if(e.error==='not-allowed') setStatus('Mikrofon izni verilmedi. Chrome adres çubuğundaki kilit simgesinden mikrofon iznini aç.');
-    else if(e.error==='no-speech') setStatus('Ses algılanmadı; tekrar dinliyorum.');
-    else setStatus('Hata: '+e.error);
-  };
-  rec.onend=()=>{
-    if(keepGoing){
-      setTimeout(()=>{try{rec.start()}catch(_){}},250);
-    }else{
-      setStatus('Durduruldu.');
-      startBtn.disabled=false; stopBtn.disabled=true;
-    }
-  };
-
-  startBtn.onclick=()=>{
-    keepGoing=true; finalText=''; finalEl.textContent='—'; interimEl.textContent='';
-    startBtn.disabled=true; stopBtn.disabled=false;
-    try{rec.start()}catch(_){}
-  };
-  stopBtn.onclick=()=>{
-    keepGoing=false; stopBtn.disabled=true;
-    try{rec.stop()}catch(_){}
+    chunks=[];
   };
 }
+
+function startSegment(){
+  if(speaking || !active) return;
+  speaking=true;
+  speechStart=performance.now();
+  silenceStart=0;
+  dot.classList.add('on');
+  speechState.textContent='Konuşma algılandı — kayıt alınıyor';
+  makeRecorder();
+  recorder.start();
+}
+
+function endSegment(){
+  if(!speaking) return;
+  speaking=false;
+  dot.classList.remove('on');
+  speechState.textContent='Konuşma bitti — parça hazırlandı';
+  if(recorder && recorder.state!=='inactive') recorder.stop();
+}
+
+function addSegment(blob,duration){
+  segmentNo++;
+  if(segmentNo===1) segments.innerHTML='';
+  const url=URL.createObjectURL(blob);
+  const div=document.createElement('div');
+  div.className='seg';
+  div.innerHTML =
+    '<div class="segTop"><strong>Replik '+segmentNo+'</strong><span class="pill">'+duration.toFixed(1)+' sn</span></div>'+
+    '<div style="color:#9eb5ce;font-size:14px">Ses parçası yakalandı. Aşağıdan dinleyebilirsin.</div>'+
+    '<audio controls src="'+url+'"></audio>';
+  segments.prepend(div);
+  setStatus('✅ Replik '+segmentNo+' yakalandı. Yeni konuşmayı dinliyorum.');
+}
+
+function meterLoop(){
+  const data=new Uint8Array(analyser.fftSize);
+  analyser.getByteTimeDomainData(data);
+  let sum=0;
+  for(let i=0;i<data.length;i++){
+    const v=(data[i]-128)/128;
+    sum+=v*v;
+  }
+  const rms=Math.sqrt(sum/data.length);
+  lastLevel=rms;
+  const pct=Math.min(100,Math.round(rms*420));
+  bar.style.width=pct+'%';
+  levelText.textContent=pct+'%';
+
+  const now=performance.now();
+
+  if(!speaking){
+    if(rms>=START_THRESHOLD) startSegment();
+  }else{
+    if(rms<STOP_THRESHOLD){
+      if(!silenceStart) silenceStart=now;
+      if(now-silenceStart>=SILENCE_MS){
+        if(now-speechStart>=MIN_SPEECH_MS) endSegment();
+        else {
+          silenceStart=0;
+        }
+      }
+    }else{
+      silenceStart=0;
+    }
+  }
+  if(active) rafId=requestAnimationFrame(meterLoop);
+}
+
+async function start(){
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({
+      audio:{echoCancellation:false,noiseSuppression:true,autoGainControl:true}
+    });
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    source=audioCtx.createMediaStreamSource(stream);
+    analyser=audioCtx.createAnalyser();
+    analyser.fftSize=1024;
+    source.connect(analyser);
+
+    active=true;
+    startBtn.disabled=true;
+    stopBtn.disabled=false;
+    setStatus('🎧 Mikrofon açık. Rusça film sesini dinliyorum.');
+    speechState.textContent='Konuşma bekleniyor';
+    rafId=requestAnimationFrame(meterLoop);
+  }catch(e){
+    setStatus('Mikrofon açılamadı: '+(e.message||e.name));
+  }
+}
+
+function stop(){
+  active=false;
+  cancelAnimationFrame(rafId);
+  if(speaking) endSegment();
+  if(stream) stream.getTracks().forEach(t=>t.stop());
+  if(audioCtx) audioCtx.close();
+  bar.style.width='0%';
+  levelText.textContent='0%';
+  dot.classList.remove('on');
+  speechState.textContent='Dinleme durduruldu';
+  startBtn.disabled=false;
+  stopBtn.disabled=true;
+  setStatus('Durduruldu.');
+}
+
+startBtn.onclick=start;
+stopBtn.onclick=stop;
 </script>
 </body>
 </html>
