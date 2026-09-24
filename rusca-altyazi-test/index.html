@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rusça Canlı Dinleme Testi</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#08111f;color:#fff;min-height:100vh}
+.wrap{max-width:760px;margin:auto;padding:24px 16px 60px}
+.card{background:#101d30;border:1px solid #263b59;border-radius:22px;padding:22px;box-shadow:0 16px 40px rgba(0,0,0,.28)}
+h1{font-size:28px;margin:0 0 8px}.sub{color:#a9bdd7;line-height:1.5;margin-bottom:22px}
+button{width:100%;border:0;border-radius:16px;padding:18px;font-size:20px;font-weight:700;cursor:pointer}
+#start{background:#4bd6a3;color:#062317}#stop{background:#ff6b6b;color:#2a0808;margin-top:10px}
+.box{margin-top:20px;background:#07101d;border-radius:16px;padding:18px;min-height:140px;border:1px solid #203450}
+.label{font-size:13px;color:#7f9bbd;text-transform:uppercase;letter-spacing:.08em}
+#finalText{font-size:25px;line-height:1.45;margin-top:8px;white-space:pre-wrap}
+#interim{font-size:19px;line-height:1.4;color:#91a9c5;margin-top:10px}
+.status{margin-top:16px;padding:12px 14px;border-radius:12px;background:#13243a;color:#cfe3ff}
+.small{font-size:13px;color:#8197b2;line-height:1.5;margin-top:16px}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="card">
+<h1>🎤 Rusça Dinleme Testi</h1>
+<div class="sub">Telefonu Rusça konuşan TV'ye veya hoparlöre yaklaştır. Konuşma bittiğinde çıkan Rusça metni kontrol edeceğiz.</div>
+<button id="start">🎙️ Dinlemeyi Başlat</button>
+<button id="stop" disabled>⏹️ Durdur</button>
+<div class="status" id="status">Hazır.</div>
+<div class="box">
+<div class="label">Kesinleşen Rusça metin</div>
+<div id="finalText">—</div>
+<div id="interim"></div>
+</div>
+<div class="small">Bu ilk test yalnızca Rusça sesi yazıya çevirir. Türkçe çeviriyi bir sonraki aşamada ekleyeceğiz. Chrome'un konuşma tanıma özelliğini kullanır; internet gerekebilir.</div>
+</section>
+</main>
+<script>
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const startBtn=document.getElementById('start'), stopBtn=document.getElementById('stop');
+const statusEl=document.getElementById('status'), finalEl=document.getElementById('finalText'), interimEl=document.getElementById('interim');
+let rec=null, keepGoing=false, finalText='';
+
+function setStatus(t){statusEl.textContent=t}
+
+if(!SR){
+  startBtn.disabled=true;
+  setStatus('Bu tarayıcı konuşma tanımayı desteklemiyor. Samsung Internet yerine Chrome ile açmayı dene.');
+}else{
+  rec=new SR();
+  rec.lang='ru-RU';
+  rec.continuous=true;
+  rec.interimResults=true;
+  rec.maxAlternatives=1;
+
+  rec.onstart=()=>setStatus('🎧 Dinliyor… Rusça konuşmayı bekliyorum.');
+  rec.onresult=(e)=>{
+    let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript.trim();
+      if(e.results[i].isFinal){
+        finalText += (finalText?'\n':'') + t;
+        finalEl.textContent=finalText || '—';
+        interimEl.textContent='';
+        setStatus('✅ Bir konuşma parçası tamamlandı. Dinlemeye devam ediyorum.');
+      } else {
+        interim += t+' ';
+      }
+    }
+    interimEl.textContent=interim ? '… '+interim : '';
+  };
+  rec.onerror=(e)=>{
+    if(e.error==='not-allowed') setStatus('Mikrofon izni verilmedi. Chrome adres çubuğundaki kilit simgesinden mikrofon iznini aç.');
+    else if(e.error==='no-speech') setStatus('Ses algılanmadı; tekrar dinliyorum.');
+    else setStatus('Hata: '+e.error);
+  };
+  rec.onend=()=>{
+    if(keepGoing){
+      setTimeout(()=>{try{rec.start()}catch(_){}},250);
+    }else{
+      setStatus('Durduruldu.');
+      startBtn.disabled=false; stopBtn.disabled=true;
+    }
+  };
+
+  startBtn.onclick=()=>{
+    keepGoing=true; finalText=''; finalEl.textContent='—'; interimEl.textContent='';
+    startBtn.disabled=true; stopBtn.disabled=false;
+    try{rec.start()}catch(_){}
+  };
+  stopBtn.onclick=()=>{
+    keepGoing=false; stopBtn.disabled=true;
+    try{rec.stop()}catch(_){}
+  };
+}
+</script>
+</body>
+</html>
