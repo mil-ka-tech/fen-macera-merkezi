@@ -1,0 +1,27 @@
+name: Build Rusca Android APK
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "android-rusca-altyazi/**"
+      - ".github/workflows/build-rusca-android.yml"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android-rusca-altyazi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+      - run: gradle :app:assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rusca-altyazi-debug-apk
+          path: android-rusca-altyazi/app/build/outputs/apk/debug/app-debug.apk
