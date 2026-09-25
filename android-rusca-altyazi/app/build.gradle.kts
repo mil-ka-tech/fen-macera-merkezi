@@ -5,6 +5,7 @@ plugins {
 android {
     namespace = "com.milkatech.ruscaaltyazi"
     compileSdk = 35
+
     defaultConfig {
         applicationId = "com.milkatech.ruscaaltyazi"
         minSdk = 26
@@ -12,6 +13,14 @@ android {
         versionCode = 1
         versionName = "0.1"
     }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+kotlin {
+    jvmToolchain(17)
 }
 dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
