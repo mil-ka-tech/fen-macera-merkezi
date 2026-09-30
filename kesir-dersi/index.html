@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kesir Dersi — Pizza ile Sıfırdan</title>
+<style>
+:root{
+  --bg:#fff8ef;
+  --card:#ffffff;
+  --ink:#2f2b27;
+  --muted:#6e665f;
+  --line:#eadfce;
+  --accent:#f59e0b;
+  --accent2:#ef4444;
+  --ok:#168a55;
+  --bad:#c43f37;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:linear-gradient(180deg,#fff7e8,#fffdf8);
+  color:var(--ink);
+}
+main{max-width:820px;margin:auto;padding:18px 14px 48px}
+.hero,.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:24px;
+  box-shadow:0 10px 28px rgba(76,55,27,.08);
+}
+.hero{padding:24px;margin-bottom:16px;text-align:center}
+.card{padding:20px;margin:14px 0}
+h1{font-size:34px;line-height:1.05;margin:6px 0 10px}
+h2{font-size:25px;margin:4px 0 10px}
+h3{font-size:20px;margin:4px 0 8px}
+p{font-size:18px;line-height:1.5;margin:9px 0}
+.small{font-size:15px;color:var(--muted)}
+.big{font-size:25px;font-weight:900}
+.center{text-align:center}
+.note{background:#fff6d8;border-radius:16px;padding:14px;margin:12px 0}
+.rule{background:#eefbf4;border-left:5px solid var(--ok);padding:13px 14px;border-radius:12px;margin:12px 0}
+.warn{background:#fff0ef;border-left:5px solid var(--bad);padding:13px 14px;border-radius:12px;margin:12px 0}
+.frac{
+  display:inline-grid;
+  grid-template-rows:auto auto;
+  text-align:center;
+  line-height:1;
+  vertical-align:middle;
+  font-weight:900;
+}
+.frac .top{border-bottom:3px solid currentColor;padding:0 8px 5px}
+.frac .bot{padding:5px 8px 0}
+.fxl{font-size:52px}
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:center}
+.pizza{
+  width:170px;height:170px;border-radius:50%;
+  border:12px solid #c9822d;
+  box-shadow:inset 0 0 0 4px #f1b948,0 8px 16px rgba(0,0,0,.08);
+  position:relative;
+}
+.pizza::after{
+  content:"";position:absolute;inset:18px;border-radius:50%;
+  background:
+    radial-gradient(circle at 28% 30%, #c94b43 0 7px, transparent 8px),
+    radial-gradient(circle at 65% 28%, #c94b43 0 7px, transparent 8px),
+    radial-gradient(circle at 72% 62%, #c94b43 0 7px, transparent 8px),
+    radial-gradient(circle at 35% 70%, #c94b43 0 7px, transparent 8px);
+  pointer-events:none;
+}
+.p14{background:conic-gradient(#ffbe3b 0 25%,#ffe7a3 25% 100%)}
+.p34{background:conic-gradient(#ffbe3b 0 75%,#ffe7a3 75% 100%)}
+.p12{background:conic-gradient(#ffbe3b 0 50%,#ffe7a3 50% 100%)}
+.p24{background:conic-gradient(#ffbe3b 0 50%,#ffe7a3 50% 100%)}
+.p38{background:conic-gradient(#ffbe3b 0 37.5%,#ffe7a3 37.5% 100%)}
+.p58{background:conic-gradient(#ffbe3b 0 62.5%,#ffe7a3 62.5% 100%)}
+.quiz{border-top:1px dashed var(--line);margin-top:16px;padding-top:16px}
+.choices{display:grid;gap:9px;margin-top:10px}
+button{
+  width:100%;border:none;border-radius:15px;padding:14px 15px;
+  font-size:17px;font-weight:800;background:#f6efe5;color:var(--ink);
+}
+button:active{transform:scale(.99)}
+button.ok{background:#dcfce7;color:#14532d}
+button.bad{background:#fee2e2;color:#7f1d1d}
+.feedback{display:none;margin-top:10px;padding:12px 13px;border-radius:14px;background:#fff7d6;font-size:16px;line-height:1.4}
+.line{
+  height:6px;background:#d7c8b2;border-radius:999px;position:relative;margin:28px 10px 38px;
+}
+.tick{position:absolute;top:-7px;width:2px;height:20px;background:#7b6a58}
+.lab{position:absolute;top:18px;transform:translateX(-50%);font-weight:800}
+.eq{font-size:26px;font-weight:900;text-align:center;margin:14px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.summary{
+  background:#2f2b27;color:white;border-radius:22px;padding:20px;margin-top:18px;
+}
+.summary p{color:#fff}
+@media(max-width:560px){
+  h1{font-size:29px}
+  p{font-size:17px}
+  .pizza{width:145px;height:145px}
+  .grid2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <div style="font-size:64px">🍕</div>
+  <h1>Kesirler neden var?</h1>
+  <p>Bir pizzamız ve 4 kişi var. Herkes eşit yiyecek.</p>
+  <p class="big">Bir kişiye ne kadar pizza düşer?</p>
+  <div class="row">
+    <div class="pizza p14" aria-label="Pizzanın dörtte biri"></div>
+  </div>
+  <p>Bir pizzanın <b>4 eşit diliminden 1 dilimi</b>.</p>
+  <div class="fxl"><span class="frac"><span class="top">1</span><span class="bot">4</span></span></div>
+  <p><b>Kesirler parçaları kısa ve net anlatmak için var.</b></p>
+</div>
+
+<div class="card">
+  <h2>Kesir olmasaydı ne olurdu?</h2>
+  <p>Parçalar yine var olurdu. Yarım pizza yine yarım pizza olurdu, çeyrek saat yine 15 dakika olurdu.</p>
+  <p>Ama her seferinde “bir bütünün dört eşit parçasından bir tanesi” demek zorunda kalırdık.</p>
+  <div class="rule"><b>Kesir bir işlem değil; bir miktarın adıdır.</b></div>
+  <p>Örneğin <b>3/4 pizza</b>, “pizzanın 4 eşit diliminden 3 dilimi” demektir.</p>
+</div>
+
+<div class="card">
+  <h2>Pay ve payda</h2>
+  <div class="row">
+    <div class="pizza p34"></div>
+    <div class="fxl"><span class="frac"><span class="top">3</span><span class="bot">4</span></span></div>
+  </div>
+  <div class="grid2">
+    <div class="note">
+      <h3>Üstteki sayı: PAY</h3>
+      <p><b>Kaç dilim seçildi?</b><br>Burada 3 dilim.</p>
+    </div>
+    <div class="note">
+      <h3>Alttaki sayı: PAYDA</h3>
+      <p><b>Pizza toplam kaç eşit dilime ayrıldı?</b><br>Burada 4 dilim.</p>
+    </div>
+  </div>
+  <div class="quiz">
+    <p><b>5/8 kesrinde pay hangisi?</b></p>
+    <div class="choices">
+      <button onclick="answer(this,true,'f1','Doğru. Pay üstteki sayıdır: 5.')">5</button>
+      <button onclick="answer(this,false,'f1','8 paydadır. Pay üstteki 5 sayısıdır.')">8</button>
+    </div>
+    <div class="feedback" id="f1"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Kesir ile bölme neden benziyor?</h2>
+  <p>Çünkü gerçekten bağlantılılar.</p>
+  <p>3 pizzayı 4 kişiye eşit paylaştırırsak kişi başına:</p>
+  <div class="eq">3 ÷ 4 = <span class="frac"><span class="top">3</span><span class="bot">4</span></span></div>
+  <div class="note">
+    <b>Önemli:</b> 3/4 sadece “bölme yap” demek değildir. Aynı zamanda ortaya çıkan miktarın adıdır.
+  </div>
+  <p>Yani “kesri bölme sandım” düşüncesi tamamen yanlış değil; sadece eksik. Kesir hem bölmeyle bağlantılıdır hem de tek başına bir sayıdır.</p>
+</div>
+
+<div class="card">
+  <h2>Birim kesir</h2>
+  <p>Payı 1 olan kesirlere <b>birim kesir</b> denir.</p>
+  <div class="row">
+    <div class="center"><div class="pizza p12"></div><p><b>1/2</b></p></div>
+    <div class="center"><div class="pizza p14"></div><p><b>1/4</b></p></div>
+  </div>
+  <p>Bir bütün ne kadar çok eşit parçaya bölünürse, her bir parça o kadar küçülür.</p>
+  <div class="rule"><b>1/2 > 1/4 > 1/8</b></div>
+  <div class="quiz">
+    <p><b>Hangisi daha büyük?</b></p>
+    <div class="choices">
+      <button onclick="answer(this,true,'f2','Doğru. Aynı bütün için 1/3, 1/6’dan daha büyüktür.')">1/3</button>
+      <button onclick="answer(this,false,'f2','6 parçaya bölünmüş bir bütünün tek dilimi daha küçüktür.')">1/6</button>
+    </div>
+    <div class="feedback" id="f2"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Kesir sayı doğrusunda da bir sayıdır</h2>
+  <p>Kesirler yalnızca pizza resmi değildir. 0 ile 1 arasındaki gerçek sayılardır.</p>
+  <div class="line">
+    <span class="tick" style="left:0%"></span><span class="lab" style="left:0%">0</span>
+    <span class="tick" style="left:25%"></span><span class="lab" style="left:25%">1/4</span>
+    <span class="tick" style="left:50%"></span><span class="lab" style="left:50%">2/4</span>
+    <span class="tick" style="left:75%"></span><span class="lab" style="left:75%">3/4</span>
+    <span class="tick" style="left:100%"></span><span class="lab" style="left:100%">1</span>
+  </div>
+  <p><b>4/4 = 1 bütün.</b></p>
+</div>
+
+<div class="card">
+  <h2>Denk kesirler</h2>
+  <div class="row">
+    <div class="center"><div class="pizza p12"></div><p><b>1/2</b></p></div>
+    <div class="center"><div class="pizza p24"></div><p><b>2/4</b></p></div>
+  </div>
+  <p>İki pizza görseli aynı miktarı gösteriyor.</p>
+  <div class="eq">1/2 = 2/4 = 4/8</div>
+  <p>Kesrin payını ve paydasını aynı sayıyla çarparsak miktar değişmez.</p>
+  <div class="quiz">
+    <p><b>3/6 hangi kesre denktir?</b></p>
+    <div class="choices">
+      <button onclick="answer(this,true,'f3','Doğru. 3/6 sadeleşince 1/2 olur.')">1/2</button>
+      <button onclick="answer(this,false,'f3','3/6 bir yarımdır. 1/3 değildir.')">1/3</button>
+      <button onclick="answer(this,false,'f3','3/6, 3/4 ile aynı miktar değildir.')">3/4</button>
+    </div>
+    <div class="feedback" id="f3"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Kesirleri karşılaştırma</h2>
+  <h3>Paydalar aynıysa</h3>
+  <p>Dilim büyüklükleri aynıdır. Daha çok dilim alan daha büyüktür.</p>
+  <div class="row">
+    <div class="center"><div class="pizza p38"></div><p><b>3/8</b></p></div>
+    <div class="center"><div class="pizza p58"></div><p><b>5/8</b></p></div>
+  </div>
+  <div class="eq">5/8 > 3/8</div>
+
+  <h3>Paylar aynıysa</h3>
+  <p>Aynı sayıda dilim alınmıştır. Daha az parçaya bölünen pizzanın dilimleri daha büyüktür.</p>
+  <div class="eq">3/4 > 3/8</div>
+</div>
+
+<div class="card">
+  <h2>Basit, bileşik ve tam sayılı kesir</h2>
+  <p><b>Basit kesir:</b> Pay, paydadan küçüktür. Örnek: 3/4.</p>
+  <p><b>Bileşik kesir:</b> Pay, paydaya eşit veya büyüktür. Örnek: 5/4.</p>
+  <p><b>Tam sayılı kesir:</b> Bir veya daha fazla bütün ve yanında kesir vardır. Örnek: 1 tam 1/4.</p>
+  <div class="eq">5/4 = 1 tam 1/4</div>
+  <div class="quiz">
+    <p><b>7/4 hangisidir?</b></p>
+    <div class="choices">
+      <button onclick="answer(this,false,'f4','7, 4’ten büyük olduğu için bu basit kesir değildir.')">Basit kesir</button>
+      <button onclick="answer(this,true,'f4','Doğru. Pay paydadan büyük olduğu için bileşik kesirdir.')">Bileşik kesir</button>
+    </div>
+    <div class="feedback" id="f4"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Kesirlerde toplama</h2>
+  <h3>Paydalar aynıysa</h3>
+  <p>Dilimlerin büyüklüğü aynıdır. Sadece kaç dilim olduğunu toplarız.</p>
+  <div class="eq">2/8 + 3/8 = 5/8</div>
+  <div class="rule">Paydalar aynı kalır, paylar toplanır.</div>
+
+  <h3>Paydalar farklıysa</h3>
+  <p>Önce dilimleri aynı büyüklüğe getiririz.</p>
+  <div class="eq">1/2 + 1/4 = 2/4 + 1/4 = 3/4</div>
+  <div class="warn"><b>Paydaları doğrudan toplamayız.</b> 1/2 + 1/4 = 2/6 değildir.</div>
+
+  <div class="quiz">
+    <p><b>1/4 + 2/4 kaçtır?</b></p>
+    <div class="choices">
+      <button onclick="answer(this,true,'f5','Doğru: 1/4 + 2/4 = 3/4.')">3/4</button>
+      <button onclick="answer(this,false,'f5','Paydalar aynı kalır. 1+2=3, sonuç 3/4 olur.')">3/8</button>
+    </div>
+    <div class="feedback" id="f5"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Kesirlerde çıkarma</h2>
+  <p>Toplamadaki mantığın aynısıdır.</p>
+  <div class="eq">5/8 − 2/8 = 3/8</div>
+  <p>Paydalar farklıysa önce eşitleriz:</p>
+  <div class="eq">3/4 − 1/2 = 3/4 − 2/4 = 1/4</div>
+</div>
+
+<div class="card">
+  <h2>Günlük hayatta kesir</h2>
+  <p>Kesirler sadece sınav için değildir.</p>
+  <p>🍕 Pizzanın 3/4’ü</p>
+  <p>⏰ Saatin 1/4’ü = 15 dakika</p>
+  <p>💰 Bir liranın 1/2’si = 50 kuruş</p>
+  <p>📏 Bir metrenin 1/2’si = 50 cm</p>
+  <p>🥛 1/2 bardak süt</p>
+</div>
+
+<div class="card">
+  <h2>Son kontrol</h2>
+  <p><b>1.</b> 3/7’de pizza kaç eşit dilime ayrılmıştır?</p>
+  <div class="choices">
+    <button onclick="answer(this,false,'f6','3 seçilen dilim sayısıdır.')">3</button>
+    <button onclick="answer(this,true,'f6','Doğru. Payda 7 olduğu için bütün 7 eşit parçaya ayrılmıştır.')">7</button>
+  </div>
+  <div class="feedback" id="f6"></div>
+
+  <p style="margin-top:18px"><b>2.</b> 4/4 kaç bütündür?</p>
+  <div class="choices">
+    <button onclick="answer(this,true,'f7','Doğru. 4 eşit parçanın 4’ü de alınmışsa 1 bütün vardır.')">1 bütün</button>
+    <button onclick="answer(this,false,'f7','4/4, bütünün tamamıdır; yani 1 bütündür.')">4 bütün</button>
+  </div>
+  <div class="feedback" id="f7"></div>
+
+  <p style="margin-top:18px"><b>3.</b> Hangisi daha büyüktür?</p>
+  <div class="choices">
+    <button onclick="answer(this,false,'f8','Paydalar aynı. 5 dilim, 3 dilimden daha fazladır.')">3/8</button>
+    <button onclick="answer(this,true,'f8','Doğru. 5/8, 3/8’den büyüktür.')">5/8</button>
+  </div>
+  <div class="feedback" id="f8"></div>
+</div>
+
+<div class="summary">
+  <h2 style="color:white">Akılda kalacak 6 cümle</h2>
+  <p>1. Kesir, bir miktarın adıdır.</p>
+  <p>2. Payda: bütün kaç eşit parçaya ayrıldı?</p>
+  <p>3. Pay: bu parçalardan kaç tanesi alındı?</p>
+  <p>4. 4/4 = 1 bütün.</p>
+  <p>5. 1/2 = 2/4 = 4/8.</p>
+  <p>6. 3/4 ile 3 ÷ 4 bağlantılıdır; ama 3/4 aynı zamanda tek başına bir sayıdır.</p>
+</div>
+
+</main>
+<script>
+function answer(btn,correct,id,msg){
+  const box=document.getElementById(id);
+  const group=btn.parentElement.querySelectorAll('button');
+  group.forEach(b=>b.classList.remove('ok','bad'));
+  btn.classList.add(correct?'ok':'bad');
+  box.style.display='block';
+  box.style.background=correct?'#dcfce7':'#fee2e2';
+  box.style.color=correct?'#14532d':'#7f1d1d';
+  box.textContent=msg;
+}
+</script>
+</body>
+</html>
